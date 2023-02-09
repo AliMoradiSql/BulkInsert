@@ -13,11 +13,11 @@ namespace BulkCopyFromExcel.MVC.Controllers
 {
     public class BulkCopyController : Controller
     {
-        //private readonly BulkCopyDbContext bulkCopyDbContext;
+        private readonly BulkCopyDbContext bulkCopyDbContext;
 
-        public BulkCopyController()
+        public BulkCopyController(BulkCopyDbContext bulkCopyDbContext)
         {
-            //this.bulkCopyDbContext = bulkCopyDbContext;
+            this.bulkCopyDbContext = bulkCopyDbContext;
         }
 
         public IActionResult Index()
@@ -73,56 +73,7 @@ namespace BulkCopyFromExcel.MVC.Controllers
                 }
 
             }
-            //bulkCopyDbContext.AddRangeAsync(bulkCopies);
-            //bulkCopyDbContext.SaveChanges();
-            //using ( var tran =  bulkCopyDbContext.Database.BeginTransaction())
-            //{
-            //    try
-            //    {
-            //        int cont = 1;
-            //        while (cont > 50000)
-            //            bulkCopyDbContext.AddRangeAsync(bulkCopies);
-            //        tran.Commit();
-            //    }
-            //    catch (Exception)
-            //    {
-            //        tran.Rollback();
-            //        throw;
-            //    }
 
-            //}
-
-            using (TransactionScope scope = new TransactionScope())
-            {
-                BulkCopyDbContext context = null;
-
-                try
-                {
-                    context = new BulkCopyDbContext();
-                    //context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                    int count = 0;
-                    foreach (var item in bulkCopies)
-                    {
-                        ++count;
-                        context = AddToContext(new AddToContextInputDto{
-                            context = context,
-                            Entity = item,
-                            Count = count,
-                            CommitCount = 100,
-                            RecreateContext = true
-                        }
-                            );
-                    }
-                    context.SaveChanges();
-                }
-                finally
-                {
-                    if(context != null)
-                    scope.Dispose();
-                }
-                scope.Complete();
-            }
             var builder = WebApplication.CreateBuilder();
             var myConnection = builder.Configuration.GetConnectionString("DefaultConnection");
             using (SqlConnection connection = new SqlConnection(myConnection))
@@ -159,22 +110,5 @@ namespace BulkCopyFromExcel.MVC.Controllers
             return View("Index");
         }
 
-        private BulkCopyDbContext AddToContext(AddToContextInputDto input)
-        {
-            input.context.Set<Entity>().Add(input.Entity);
-
-            if (input.Count % input.CommitCount == 0)
-            {
-                input.context.SaveChanges();
-
-                if (input.RecreateContext)
-                {
-                    input.context.Dispose();
-                    input.context = new BulkCopyDbContext();
-                    //input.context.ChangeTracker.AutoDetectChangesEnabled = false;
-                }
-            }
-            return input.context;
-        }
     }
 }

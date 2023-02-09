@@ -1,5 +1,7 @@
-﻿using BulkCopyFromExcel.Repository.Entities;
+﻿using BulkCopyFromExcel.Repository.Dto;
+using BulkCopyFromExcel.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,7 @@ namespace BulkCopyFromExcel.Repository.Context
 {
     public class BulkCopyDbContext : DbContext
     {
+
         public BulkCopyDbContext()
         {
 
@@ -18,8 +21,29 @@ namespace BulkCopyFromExcel.Repository.Context
         public BulkCopyDbContext(DbContextOptions<BulkCopyDbContext> options) : base(options)
         {
         }
-        public virtual DbSet<BulkCopy> BulkCopy { get; set; }
+        public DbSet<BulkCopy> BulkCopy { get; set; }
+        public class DbContextConfiguration
+        {
 
-        
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=BulkCopyDb;Trusted_Connection=True;");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+
+            builder.Entity<BulkCopy>().HasKey(x => x.Id);
+            builder.Entity<BulkCopy>().ToTable("BulkCopy");
+
+            base.OnModelCreating(builder);
+        }
+
+
     }
 }
