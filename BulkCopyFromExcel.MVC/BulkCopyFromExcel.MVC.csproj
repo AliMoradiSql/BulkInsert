@@ -22,4 +22,10 @@
     <ProjectReference Include="..\BulkCopyFromExcel.Repository\BulkCopyFromExcel.Repository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="BulkCopyFromExcel">
+      <HintPath>bin\Debug\net6.0\BulkCopyFromExcel.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
